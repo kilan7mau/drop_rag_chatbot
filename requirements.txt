@@ -1,0 +1,10 @@
+streamlit
+sentence_transformers
+chromadb
+google-generativeai
+ipython
+pdfplumber
+python-docx
+openai
+tiktoken
+nltk
