@@ -255,11 +255,9 @@ if uploaded_files is not None:
 
 
 # Button to save data
-# Button to save data
 if st.button("Save Data"):
     try:
         collection = st.session_state.collection
-
         # Define the batch size
         batch_size = 256
 
@@ -376,7 +374,7 @@ if prompt := st.chat_input("What is up?"):
         if st.session_state.collection is not None:
             # Combine retrieved data to enhance the prompt based on selected columns
             if columns_to_answer:
-                metadatas, retrieved_data = get_search_result(
+                metadata, retrieved_data = get_search_result(
                     st.session_state.embedding_model, 
                     prompt, 
                     st.session_state.collection, 
@@ -385,8 +383,8 @@ if prompt := st.chat_input("What is up?"):
                 )
 
                # Flatten the list of lists (metadatas) and convert to a DataFrame
-                if metadatas:
-                    flattened_metadatas = [item for sublist in metadatas for item in sublist]  # Flatten the list of lists
+                if metadata:
+                    flattened_metadatas = [item for sublist in metadata for item in sublist]  # Flatten the list of lists
                     
                     # Convert the flattened list of dictionaries to a DataFrame
                     metadata_df = pd.DataFrame(flattened_metadatas)

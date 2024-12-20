@@ -1,6 +1,7 @@
 import os
 import math
 import uuid
+import numpy as np
 import tiktoken
 import platform
 import streamlit as st
@@ -13,6 +14,9 @@ def process_batch(batch_df, model, collection):
         # Encode column data to vectors for this batch
         embeddings = model.encode(batch_df['chunk'].tolist())
 
+        # Convert embeddings to a list
+        embeddings = embeddings.tolist() if isinstance(embeddings, np.ndarray) else embeddings
+        
         # Collect all metadata in one list (including the newly added '_id' column)
         metadatas = [row.to_dict() for _, row in batch_df.iterrows()]
 
@@ -40,6 +44,8 @@ def divide_dataframe(df, batch_size):
 # Define a helper function for formatting retrieved data
 def get_search_result(model, query, collection, columns_to_answer, number_docs_retrieval ):
     query_embeddings = model.encode([query])
+    # Convert query_embeddings to a list
+    query_embeddings = query_embeddings.tolist() if isinstance(query_embeddings, np.ndarray) else query_embeddings
     search_results = collection.query(
         query_embeddings=query_embeddings, 
         n_results=number_docs_retrieval)  # Fetch top 10 results
