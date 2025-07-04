@@ -20,7 +20,7 @@ class LLMClient(ABC):
         pass
 
 class GeminiClient(LLMClient):
-    def __init__(self, model_name="gemini-1.5-flash", api_key=None):
+    def __init__(self, model_name="gemini-2.5-flash", api_key=None):
         super().__init__(model_name, api_key)
         self.client = genai.GenerativeModel(model_name)
         
@@ -94,28 +94,33 @@ class LLMAgenticChunker(BaseChunker):
             chunk_overlap=0,
             length_function=openai_token_count
         )
-    
+
     def get_prompt(self, chunked_input, current_chunk=0, invalid_response=None):
         messages = [
             {
-                "role": "system", 
+                "role": "system",
                 "content": (
-                    "You are an assistant specialized in splitting text into thematically consistent sections. "
-                    "The text has been divided into chunks, each marked with <|start_chunk_X|> and <|end_chunk_X|> tags, where X is the chunk number. "
-                    "Your task is to identify the points where splits should occur, such that consecutive chunks of similar themes stay together. "
-                    "Respond with a list of chunk IDs where you believe a split should be made. For example, if chunks 1 and 2 belong together but chunk 3 starts a new topic, you would suggest a split after chunk 2. THE CHUNKS MUST BE IN ASCENDING ORDER."
-                    "Your response should be in the form: 'split_after: 3, 5'."
+                    "You are an expert in organizing educational content for e-learning. "
+                    "The input text is from course materials, divided into chunks marked with <|start_chunk_X|> and <|end_chunk_X|> tags, where X is the chunk number. "
+                    "Your task is to identify points where the topic changes significantly, ensuring each section covers a coherent educational concept, lesson, or subtopic. "
+                    "Consider transitions between concepts, definitions, examples, or sections of a lecture as potential split points. "
+                    "Respond with a list of chunk IDs where splits should occur, in ascending order, with at least one split. "
+                    "For example, if chunks 1 and 2 discuss 'Introduction to Python' but chunk 3 starts 'Data Structures', suggest a split after chunk 2. "
+                    "Your response must be in the form: 'split_after: 3, 5' and only include chunk IDs >= {current_chunk}."
                 )
             },
             {
-                "role": "user", 
+                "role": "user",
                 "content": (
-                    "CHUNKED_TEXT: " + chunked_input + "\n\n"
-                    "Respond only with the IDs of the chunks where you believe a split should occur. YOU MUST RESPOND WITH AT LEAST ONE SPLIT. THESE SPLITS MUST BE IN ASCENDING ORDER AND EQUAL OR LARGER THAN: " + str(current_chunk)+"." + (f"\n\\The previous response of {invalid_response} was invalid. DO NOT REPEAT THIS ARRAY OF NUMBERS. Please try again." if invalid_response else "")
+                        "CHUNKED_TEXT: " + chunked_input + "\n\n"
+                                                           "Respond only with the IDs of the chunks where a split should occur, in ascending order, >= " + str(
+                    current_chunk) + "."
+                        + (
+                            f"\nThe previous response of {invalid_response} was invalid. DO NOT REPEAT THIS ARRAY OF NUMBERS. Please try again." if invalid_response else "")
                 )
             },
         ]
-        return messages
+        return messages 
         
     def split_text(self, text):
         import re

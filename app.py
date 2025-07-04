@@ -264,8 +264,14 @@ def handle_chat(prompt: str, collection, columns_to_answer: List[str], number_do
             st.sidebar.dataframe(metadata_df)
 
         # Tạo prompt nâng cao và gửi đến Gemini
-        enhanced_prompt = f"""You are a good salesperson. The prompt of the customer is: "{prompt}". 
-        Answer it based on the following retrieved data: \n{retrieved_data}"""
+        enhanced_prompt = f"""You are an expert e-learning assistant, acting as a knowledgeable and patient teacher. 
+        The student's question is: "{prompt}". 
+        Provide a clear, concise, and accurate answer based on the following retrieved course materials: \n{retrieved_data}. 
+        - If the retrieved data fully addresses the question, use it to provide a detailed explanation with examples if relevant.
+        - If the data is partially relevant, use it to answer as best as possible and supplement with general knowledge if needed.
+        - If the data is irrelevant or insufficient, politely inform the student and provide a general educational response or ask for clarification.
+        - Use simple, student-friendly language and structure the answer to enhance understanding (e.g., define terms, provide context, or break down complex concepts).
+        - If applicable, suggest related topics or questions the student might explore next."""
 
         if st.session_state.llm_type == GEMINI:
             try:
@@ -311,7 +317,7 @@ def main():
     if api_key:
         try:
             genai.configure(api_key=api_key)
-            st.session_state.gemini_model = genai.GenerativeModel('gemini-1.5-flash')
+            st.session_state.gemini_model = genai.GenerativeModel('gemini-2.5-flash')
             st.success("✅ Gemini API Key configured successfully!")
         except Exception as e:
             st.error(f"Error configuring Gemini API: {str(e)}")
