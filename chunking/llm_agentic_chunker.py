@@ -16,7 +16,7 @@ class LLMClient(ABC):
         pass
 
 class GeminiClient(LLMClient):
-    def __init__(self, model_name="gemini-1.5-pro", api_key=None):
+    def __init__(self, model_name="gemini-1.5-flash", api_key=None):
         super().__init__(model_name, api_key)
         self.client = genai.GenerativeModel(model_name)
         
@@ -107,7 +107,7 @@ class LLMAgenticChunker(BaseChunker):
                 "role": "user", 
                 "content": (
                     "CHUNKED_TEXT: " + chunked_input + "\n\n"
-                    "Respond only with the IDs of the chunks where you believe a split should occur. YOU MUST RESPOND WITH AT LEAST ONE SPLIT. THESE SPLITS MUST BE IN ASCENDING ORDER AND EQUAL OR LARGER THAN: " + str(current_chunk)+"." + (f"\n\The previous response of {invalid_response} was invalid. DO NOT REPEAT THIS ARRAY OF NUMBERS. Please try again." if invalid_response else "")
+                    "Respond only with the IDs of the chunks where you believe a split should occur. YOU MUST RESPOND WITH AT LEAST ONE SPLIT. THESE SPLITS MUST BE IN ASCENDING ORDER AND EQUAL OR LARGER THAN: " + str(current_chunk)+"." + (f"\n\\The previous response of {invalid_response} was invalid. DO NOT REPEAT THIS ARRAY OF NUMBERS. Please try again." if invalid_response else "")
                 )
             },
         ]
