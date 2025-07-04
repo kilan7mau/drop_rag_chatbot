@@ -3,6 +3,9 @@ import nltk
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sentence_transformers import SentenceTransformer
+nltk.download('punkt')
+print(nltk.data.path)
+print(nltk.__file__)
 
 
 class ProtonxSemanticChunker(BaseChunker):
@@ -13,49 +16,55 @@ class ProtonxSemanticChunker(BaseChunker):
 
         # Download punkt for sentence tokenization, ensuring it's only done when class is initialized
         nltk.download("punkt", quiet=True)
-    
+
     def embed_function(self, sentences):
         """
         Embeds sentences using the specified embedding method.
         Supports 'tfidf' and 'transformers' embeddings.
         """
+        # Bỏ các câu rỗng hoặc toàn khoảng trắng
+        sentences = [s.strip() for s in sentences if s and s.strip()]
+
+        if not sentences:
+            raise ValueError("Input sentences are empty or only contain whitespace.")
+
         if self.embedding_type == "tfidf":
-            vectorizer = TfidfVectorizer().fit_transform(sentences)
-            return vectorizer.toarray()
+            vectorizer = TfidfVectorizer()
+            try:
+                return vectorizer.fit_transform(sentences).toarray()
+            except ValueError as e:
+                raise ValueError(f"TF-IDF vectorization failed: {e}")
+
         elif self.embedding_type == "transformers":
             self.model = SentenceTransformer(self.model)
             return self.model.encode(sentences)
-        
+
         else:
             raise ValueError("Unsupported embedding type. Choose 'tfidf' or 'transformers'.")
-    
-        
+
     def split_text(self, text):
-        sentences = nltk.sent_tokenize(text)  # Extract sentences
-        sentences = [item for item in sentences if item and item.strip()]
-        if not len(sentences):
+        sentences = nltk.sent_tokenize(text)
+        sentences = [s.strip() for s in sentences if s and s.strip()]
+
+        if not sentences:
             return []
 
-        # Vectorize the sentences for similarity checking
-        vectors = self.embed_function(sentences)
+        try:
+            vectors = self.embed_function(sentences)
+        except ValueError as e:
+            print("Embedding error:", e)
+            return []  # Trả về rỗng nếu embedding lỗi
 
-        # Calculate pairwise cosine similarity between sentences
         similarities = cosine_similarity(vectors)
-
-        # Initialize chunks with the first sentence
         chunks = [[sentences[0]]]
 
-        # Group sentences into chunks based on similarity threshold
         for i in range(1, len(sentences)):
-            sim_score = similarities[i-1, i]
-
+            sim_score = similarities[i - 1, i]
             if sim_score >= self.threshold:
-                # If the similarity is above the threshold, add to the current chunk
                 chunks[-1].append(sentences[i])
             else:
-                # Start a new chunk
                 chunks.append([sentences[i]])
 
-        # Join the sentences in each chunk to form coherent paragraphs
         return [' '.join(chunk) for chunk in chunks]
+
         

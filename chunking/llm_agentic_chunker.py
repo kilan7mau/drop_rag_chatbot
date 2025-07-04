@@ -5,6 +5,10 @@ import google.generativeai as genai
 import backoff
 from chunking import RecursiveTokenChunker
 from utils import openai_token_count
+import nltk
+nltk.download('punkt')  
+print(nltk.data.path)
+print(nltk.__file__)
 
 class LLMClient(ABC):
     def __init__(self, model_name, api_key=None):

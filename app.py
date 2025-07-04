@@ -7,6 +7,11 @@ import time  # Xử lý thời gian
 import io  # Xử lý input/output
 from typing import List, Optional, Dict, Any  # Type hints cho Python
 
+# Thư viện cần thiết cho xử lý ngôn ngữ tự nhiên
+import nltk
+nltk.download('punkt')  # Tải xuống bộ tokenizer của NLTK
+print(nltk.data.path)
+print(nltk.__file__)
 # Import các thư viện specialized
 from sentence_transformers import SentenceTransformer  # Chuyển văn bản thành vector
 import chromadb  # Vector database để lưu trữ và tìm kiếm
@@ -306,7 +311,7 @@ def main():
     if api_key:
         try:
             genai.configure(api_key=api_key)
-            st.session_state.gemini_model = genai.GenerativeModel('gemini-1.5-pro')
+            st.session_state.gemini_model = genai.GenerativeModel('gemini-1.5-flash')
             st.success("✅ Gemini API Key configured successfully!")
         except Exception as e:
             st.error(f"Error configuring Gemini API: {str(e)}")
